@@ -1,0 +1,57 @@
+@layer theme {
+  :root {
+    /* Colors */
+    --color-white: #ffffff;
+    --color-black: #222222;
+
+    /* Gray */
+    --color-gray-10: #F9F9FB;
+    --color-gray-20: #F3F5F7;
+    --color-gray-30: #EFF1F3;
+    --color-gray-40: #E5E6E9;
+    --color-gray-50: #CED0D7;
+    --color-gray-60: #B3B4BD;
+    --color-gray-70: #81828D;
+    --color-gray-80: #54555E;
+    --color-gray-90: #2F2E32;
+    --color-gray-100: #1C1C1E;
+
+    /* Blue */
+    --color-blue-10: #EEF7FF;
+    --color-blue-20: #E8F5FF;
+    --color-blue-30: #DBEEFF;
+    --color-blue-40: #8BC9FE;
+    --color-blue-50: #6BBBFF;
+    --color-blue-60: #319EFF;
+
+    /* Font */
+    --font-family: 'Pretendard', 'sans-serif';
+
+    /* Font Sizes */
+    --font-size-head-1: 24px;
+    --font-size-head-2: 22px;
+    --font-size-head-3: 20px;
+    --font-size-head-4: 18px;
+    --font-size-body-1: 16px;
+    --font-size-body-2: 14px;
+    --font-size-caption-1: 12px;
+    --font-size-caption-2: 11px;
+
+    /* Font Weights */
+    --font-weight-bold: 700;
+    --font-weight-semibold: 600;
+    --font-weight-medium: 500;
+    --font-weight-regular: 400;
+
+    /* Line Heights */
+    --line-height-140: 1.4;
+    --line-height-150: 1.5;
+
+    /* Letter Spacing */
+    --letter-spacing-minus-2: -0.02em;
+
+    /* Gradient */
+    --gradient-radial: radial-gradient(90.86% 110.91% at 23.75% -3.12%, #9BAAFF 0%, #C0CFFF 71.53%, #DEF4FF 100%);
+    --gradient-linear: linear-gradient(180deg, #C9D4FF 0%, #797F99 100%);
+  }
+}
