@@ -1,9 +1,6 @@
 @import "tailwindcss";
 @import "./theme.css";
 
-/* Pretendard */
-@import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css');
-
 /* Base style */
 @layer base {
   html,
@@ -20,6 +17,14 @@
   }
 }
 
+/* Pretendard */
+@font-face {
+  font-family: 'Pretendard';
+  src: url('/fonts/pretendard.woff2') format('woff2');
+  font-weight: 400 700;
+  font-display: swap;
+}
+
 @layer utilities {
   /* Gradient */
   .gradient-radial {
@@ -29,7 +34,6 @@
     background: var(--gradient-linear);
   }
 
-  /* Text Styles */
   /* Head */
   .text-head-1-bold {
     font-family: var(--font-family);
