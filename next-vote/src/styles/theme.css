@@ -1,8 +1,9 @@
 @layer theme {
   :root {
     /* Colors */
-    --color-white: #ffffff;
+    --color-white: #FFFFFF;
     --color-black: #222222;
+    --color-red: #DF4646;
 
     /* Gray */
     --color-gray-100: #F9F9FB;
