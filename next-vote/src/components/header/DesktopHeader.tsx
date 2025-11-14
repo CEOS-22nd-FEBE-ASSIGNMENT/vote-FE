@@ -2,9 +2,14 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
+import { useAuthStore } from '@/stores/useAuthStore';
+import { useAuth } from '@/hooks/auth/useAuth';
 
 const DesktopHeader = () => {
   const pathname = usePathname();
+  const { accessToken } = useAuthStore();
+  const { logout, isLogoutLoading } = useAuth();
+  const isLoggedIn = !!accessToken;
 
   return (
     <header className="fixed top-0 left-0 right-0 z-50 bg-white border-b border-gray-200">
@@ -32,14 +37,24 @@ const DesktopHeader = () => {
           >
             MEMBERS
           </Link>
-          <Link
-            href="/login"
-            className={`text-body-1-semibold transition-colors ${
-              pathname === '/login' ? 'text-blue-600' : 'text-black hover:text-blue-600'
-            }`}
-          >
-            LOGIN
-          </Link>
+          {isLoggedIn ? (
+            <button
+              onClick={() => logout()}
+              disabled={isLogoutLoading}
+              className="text-body-1-semibold text-black hover:text-blue-600 transition-colors disabled:opacity-50 cursor-pointer"
+            >
+              {isLogoutLoading ? 'LOGOUT...' : 'LOGOUT'}
+            </button>
+          ) : (
+            <Link
+              href="/login"
+              className={`text-body-1-semibold transition-colors ${
+                pathname === '/login' ? 'text-blue-600' : 'text-black hover:text-blue-600'
+              }`}
+            >
+              LOGIN
+            </Link>
+          )}
         </nav>
       </div>
     </header>
