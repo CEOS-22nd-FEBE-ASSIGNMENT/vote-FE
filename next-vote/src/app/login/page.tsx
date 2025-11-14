@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { useState, FormEvent } from 'react';
-import { useLogin } from '@/hooks/auth/useLogin';
+import { useAuth } from '@/hooks/auth/useAuth';
 import { loginSchema } from '@/schemas/loginSchema';
 
 const LoginPage = () => {
@@ -10,7 +10,8 @@ const LoginPage = () => {
   const [password, setPassword] = useState('');
   const [errors, setErrors] = useState<{ loginId?: string; password?: string }>({});
 
-  const { mutate: login, isPending } = useLogin();
+  const { login, isLoginLoading } = useAuth();
+  const isPending = isLoginLoading;
 
   const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
