@@ -2,10 +2,12 @@
 
 import Link from 'next/link';
 import { useState } from 'react';
+import { usePathname } from 'next/navigation';
 import HamburgerIcon from '@/svgs/common/hambergurBar.svg';
 
 const MobileHeader = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const pathname = usePathname();
 
   const toggleMenu = () => {
     setIsMenuOpen(!isMenuOpen);
@@ -54,21 +56,27 @@ const MobileHeader = () => {
           <nav className="flex flex-col pt-20 px-8">
             <Link
               href="/voting"
-              className="text-body-1-semibold text-black py-6 border-b border-gray-200 hover:text-blue-600 transition-colors"
+              className={`text-body-1-semibold py-6 border-b border-gray-200 transition-colors ${
+                pathname === '/voting' ? 'text-blue-600' : 'text-black hover:text-blue-600'
+              }`}
               onClick={closeMenu}
             >
               VOTING
             </Link>
             <Link
               href="/members"
-              className="text-body-1-semibold text-black py-6 border-b border-gray-200 hover:text-blue-600 transition-colors"
+              className={`text-body-1-semibold py-6 border-b border-gray-200 transition-colors ${
+                pathname === '/members' ? 'text-blue-600' : 'text-black hover:text-blue-600'
+              }`}
               onClick={closeMenu}
             >
               MEMBERS
             </Link>
             <Link
               href="/login"
-              className="text-body-1-semibold text-black py-6 hover:text-blue-600 transition-colors"
+              className={`text-body-1-semibold py-6 transition-colors ${
+                pathname === '/login' ? 'text-blue-600' : 'text-black hover:text-blue-600'
+              }`}
               onClick={closeMenu}
             >
               LOGIN
