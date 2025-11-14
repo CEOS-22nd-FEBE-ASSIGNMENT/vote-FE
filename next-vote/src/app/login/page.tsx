@@ -2,13 +2,34 @@
 
 import Link from 'next/link';
 import { useState, FormEvent } from 'react';
+import { useLogin } from '@/hooks/auth/useLogin';
+import { loginSchema } from '@/schemas/loginSchema';
 
 const LoginPage = () => {
-  const [username, setUsername] = useState('');
+  const [loginId, setLoginId] = useState('');
   const [password, setPassword] = useState('');
+  const [errors, setErrors] = useState<{ loginId?: string; password?: string }>({});
+
+  const { mutate: login, isPending } = useLogin();
 
   const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    setErrors({});
+
+    // zod 검증
+    const result = loginSchema.safeParse({ loginId, password });
+
+    if (!result.success) {
+      const fieldErrors: { loginId?: string; password?: string } = {};
+      result.error.issues.forEach((err) => {
+        if (err.path[0]) {
+          fieldErrors[err.path[0] as 'loginId' | 'password'] = err.message;
+        }
+      });
+      setErrors(fieldErrors);
+      return;
+    }
+    login({ loginId, password });
   };
 
   return (
@@ -24,18 +45,19 @@ const LoginPage = () => {
         <form onSubmit={handleSubmit} className="space-y-4 md:space-y-6">
           {/* 아이디 입력 */}
           <div>
-            <label htmlFor="username" className="block text-body-2-semibold text-black mb-2">
+            <label htmlFor="loginId" className="block text-body-2-semibold text-black mb-2">
               아이디
             </label>
             <input
               type="text"
-              id="username"
-              value={username}
-              onChange={(e) => setUsername(e.target.value)}
+              id="loginId"
+              value={loginId}
+              onChange={(e) => setLoginId(e.target.value)}
               placeholder="아이디를 입력하세요"
-              className="w-full px-4 py-3 bg-gray-200 rounded-[14px] text-body-1-medium text-black placeholder:text-gray-700 focus:outline-none"
-              required
+              className={`w-full px-4 py-3 bg-gray-200 rounded-[14px] text-body-1-medium text-black placeholder:text-gray-700 focus:outline-none`}
+              disabled={isPending}
             />
+            {errors.loginId && <p className="text-body-2-semibold text-red-500 mt-1">{errors.loginId}</p>}
           </div>
 
           {/* 비밀번호 입력 */}
@@ -49,17 +71,19 @@ const LoginPage = () => {
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               placeholder="비밀번호를 입력하세요"
-              className="w-full px-4 py-3 bg-gray-200 rounded-[14px] text-body-1-medium text-black placeholder:text-gray-700 focus:outline-none"
-              required
+              className={`w-full px-4 py-3 bg-gray-200 rounded-[14px] text-body-1-medium text-black placeholder:text-gray-700 focus:outline-none`}
+              disabled={isPending}
             />
+            {errors.password && <p className="text-body-2-semibold text-red-500 mt-1">{errors.password}</p>}
           </div>
 
           {/* 로그인 버튼 */}
           <button
             type="submit"
-            className="w-full py-3 bg-blue-600 text-white text-body-1-semibold rounded-[14px] hover:bg-blue-500"
+            disabled={isPending}
+            className="w-full py-3 bg-blue-600 text-white text-body-1-semibold rounded-[14px] hover:bg-blue-500 disabled:opacity-50 disabled:cursor-not-allowed transition-opacity"
           >
-            로그인하기
+            {isPending ? '로그인 중...' : '로그인하기'}
           </button>
         </form>
 
