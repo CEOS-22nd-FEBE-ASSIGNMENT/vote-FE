@@ -76,36 +76,36 @@ const SignUpForm = () => {
       </div>
       {/* 아이디 */}
       <Label>아이디</Label>
-      <div className="flex w-full gap-2 mb-6">
+      <div className="flex w-full gap-2 mb-6 flex-nowrap">
         <Input
           type="text"
           placeholder="아이디를 입력하세요"
-          className="px-4 py-3 md:px-6 w-2/3"
+          className="px-4 py-3 md:px-6 flex-1 min-w-0"
           value={form.userId}
           onChange={e => setForm({ ...form, userId: e.target.value })}
         />
         <CheckButton
           disabled={form.userId.length < 6}
           onClick={handleUserIdCheck}
-          className="px-4 py-3 md:px-6"
+          className="px-4 py-3"
         >
           중복확인
         </CheckButton>
       </div>
       {/* 이메일 */}
       <Label>이메일</Label>
-      <div className="flex w-full gap-2 mb-6">
+      <div className="flex w-full gap-2 mb-6 flex-nowrap">
         <Input
           type="email"
           placeholder="이메일을 입력하세요"
-          className="px-4 py-3 md:px-6 w-2/3"
+          className="px-4 py-3 md:px-6 flex-1 min-w-0"
           value={form.userEmail}
           onChange={e => setForm({ ...form, userEmail: e.target.value })}
         />
         <CheckButton
           disabled={!isValidEmail(form.userEmail)}
           onClick={handleEmailCheck}
-          className="px-4 py-3 md:px-6"
+          className="px-4 py-3"
         >
           중복확인
         </CheckButton>

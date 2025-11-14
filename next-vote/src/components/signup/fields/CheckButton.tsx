@@ -12,7 +12,7 @@ const CheckButton = ({ disabled, onClick, children, className = "" }: CheckButto
     type="button"
     disabled={disabled}
     onClick={onClick}
-    className={`w-1/3 h-full flex items-center justify-center text-body-1-semibold rounded-[14px] transition-colors duration-150 ${className} ${
+    className={`w-[88px] h-full flex items-center justify-center text-body-1-semibold rounded-[14px] transition-colors duration-150 ${className} ${
       disabled
         ? "bg-gray-500 text-gray-700 opacity-100 cursor-not-allowed"
         : "bg-blue-600 text-white cursor-pointer hover:bg-blue-500"
