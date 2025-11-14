@@ -4,10 +4,15 @@ import Link from 'next/link';
 import { useState } from 'react';
 import { usePathname } from 'next/navigation';
 import HamburgerIcon from '@/svgs/common/hambergurBar.svg';
+import { useAuthStore } from '@/stores/useAuthStore';
+import { useAuth } from '@/hooks/auth/useAuth';
 
 const MobileHeader = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const pathname = usePathname();
+  const { accessToken } = useAuthStore();
+  const { logout, isLogoutLoading } = useAuth();
+  const isLoggedIn = !!accessToken;
 
   const toggleMenu = () => {
     setIsMenuOpen(!isMenuOpen);
@@ -15,6 +20,11 @@ const MobileHeader = () => {
 
   const closeMenu = () => {
     setIsMenuOpen(false);
+  };
+
+  const handleLogout = () => {
+    logout();
+    closeMenu();
   };
 
   return (
@@ -72,15 +82,25 @@ const MobileHeader = () => {
             >
               MEMBERS
             </Link>
-            <Link
-              href="/login"
-              className={`text-body-1-semibold py-6 transition-colors ${
-                pathname === '/login' ? 'text-blue-600' : 'text-black hover:text-blue-600'
-              }`}
-              onClick={closeMenu}
-            >
-              LOGIN
-            </Link>
+            {isLoggedIn ? (
+              <button
+                onClick={handleLogout}
+                disabled={isLogoutLoading}
+                className="text-body-1-semibold py-6 text-black hover:text-blue-600 transition-colors disabled:opacity-50 text-left"
+              >
+                {isLogoutLoading ? 'LOGOUT...' : 'LOGOUT'}
+              </button>
+            ) : (
+              <Link
+                href="/login"
+                className={`text-body-1-semibold py-6 transition-colors ${
+                  pathname === '/login' ? 'text-blue-600' : 'text-black hover:text-blue-600'
+                }`}
+                onClick={closeMenu}
+              >
+                LOGIN
+              </Link>
+            )}
           </nav>
         </div>
       </>

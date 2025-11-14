@@ -1,6 +1,8 @@
 import type { Metadata } from 'next';
 import '@/styles/globals.css';
 import Header from '@/components/header/Header';
+import ReactQueryProvider from '@/utils/reactQueryProvider';
+import { AuthProvider } from '@/providers/AuthProvider';
 
 export const metadata: Metadata = {
   title: '2025 CEOS AWARD',
@@ -16,8 +18,12 @@ const RootLayout = ({
   return (
     <html lang="ko">
       <body className="antialiased gradient-radial min-h-screen">
-        <Header />
-        {children}
+        <ReactQueryProvider>
+          <AuthProvider>
+            <Header />
+            {children}
+          </AuthProvider>
+        </ReactQueryProvider>
       </body>
     </html>
   );

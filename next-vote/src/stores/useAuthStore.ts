@@ -1,0 +1,22 @@
+import { create } from 'zustand';
+
+interface AuthStore {
+  accessToken: string;
+
+  setAccessToken: (token: string) => void;
+  clearAuth: () => void;
+}
+
+export const useAuthStore = create<AuthStore>((set) => ({
+  accessToken: '',
+
+  setAccessToken: (token) =>
+    set({
+      accessToken: token,
+    }),
+
+  clearAuth: () =>
+    set({
+      accessToken: '',
+    }),
+}));
