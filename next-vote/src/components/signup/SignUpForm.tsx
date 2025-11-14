@@ -1,24 +1,29 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { teamOptions } from "../../constants/teamOptions";
 import { nameOptions } from "../../constants/nameOptions";
+import Label from "./fields/Label";
+import Input from "./fields/Input";
+import Select from "./fields/Select";
+import CheckButton from "./fields/CheckButton";
 
 const SignUpForm = () => {
-  const [selectedTeam, setSelectedTeam] = useState<'FRONT-END' | 'BACK-END' | null>(null);
-  const [selectedTeamName, setSelectedTeamName] = useState("");
-  const [selectedName, setSelectedName] = useState("");
-  const [userId, setUserId] = useState("");
-  const [userEmail, setUserEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [passwordCheck, setPasswordCheck] = useState("");
-  const [isDesktop, setIsDesktop] = useState(false);
+  // 중복확인 버튼 핸들러
+  const handleUserIdCheck = () => {
+    // 아이디 중복확인 API 호출
+  };
+  const handleEmailCheck = () => {
+    // 이메일 중복확인 API 호출
+  };
 
-  useEffect(() => {
-    const mediaQuery = window.matchMedia("(min-width: 768px)");
-    const handleResize = () => setIsDesktop(mediaQuery.matches);
-    handleResize();
-    mediaQuery.addEventListener("change", handleResize);
-    return () => mediaQuery.removeEventListener("change", handleResize);
-  }, []);
+  const [form, setForm] = useState({
+    selectedTeam: null as 'FRONT-END' | 'BACK-END' | null,
+    selectedTeamName: "",
+    selectedName: "",
+    userId: "",
+    userEmail: "",
+    password: "",
+    passwordCheck: "",
+  });
 
   const isValidEmail = (email: string) => {
     return /^[\w-.]+@[\w-]+\.[a-zA-Z]{2,}$/.test(email);
@@ -26,129 +31,119 @@ const SignUpForm = () => {
 
   return (
     <form
-      className={`flex flex-col w-full mx-auto my-8 rounded-2xl bg-white ${isDesktop ? 'max-w-2xl px-8 py-6' : 'max-w-[360px] px-8 py-6'}`}
+      className="flex flex-col w-full mx-auto my-8 rounded-2xl bg-white max-w-[360px] px-8 py-6 md:max-w-2xl md:px-8 md:py-6"
       style={{ boxShadow: "0 10px 15px -3px rgba(0, 0, 0, 0.10), 0 4px 6px -4px rgba(0, 0, 0, 0.10)" }}
     >
-      <h1 className={`text-head-2-bold ${isDesktop ? 'mb-4' : 'mb-2'} text-center`}>회원가입</h1>
-      <p className={`text-center text-gray-700 ${isDesktop ? 'mb-6' : 'mb-8'} text-body-2-semibold`}>투표 시스템에 가입하고 투표에 참여하세요</p>
+  <h1 className="text-head-2-bold mb-2 md:mb-4 text-center">회원가입</h1>
+  <p className="text-center text-gray-700 mb-8 md:mb-6 text-body-2-semibold">투표 시스템에 가입하고 투표에 참여하세요</p>
       {/* 팀 선택 버튼 */}
-      <label className="text-body-2-semibold mb-2.5 flex">팀 선택</label>
+      <Label className="mb-2.5">팀 선택</Label>
       <div className="flex h-12 w-full mb-6 justify-between">
         <button
           type="button"
-          className={`${isDesktop ? 'w-[290px] py-3 px-0' : 'w-[138px] px-0 py-3'} rounded-[14px] text-body-1-semibold cursor-pointer transition-all duration-150 ${selectedTeam === 'FRONT-END' ? 'bg-blue-600 text-white' : 'bg-gray-200 text-gray-700'}`}
-          onClick={() => setSelectedTeam('FRONT-END')}
+          className={`w-[138px] px-0 py-3 md:w-[290px] md:py-3 rounded-[14px] text-body-1-semibold cursor-pointer transition-all duration-150 ${form.selectedTeam === 'FRONT-END' ? 'bg-blue-600 text-white' : 'bg-gray-200 text-gray-700'}`}
+          onClick={() => setForm({ ...form, selectedTeam: 'FRONT-END' })}
         >
           FRONT-END
         </button>
         <button
           type="button"
-          className={`${isDesktop ? 'w-[290px] py-3 px-0' : 'w-[138px] px-0 py-3'} rounded-[14px] text-body-1-semibold cursor-pointer transition-all duration-150 ${selectedTeam === 'BACK-END' ? 'bg-blue-600 text-white' : 'bg-gray-200 text-gray-700'}`}
-          onClick={() => setSelectedTeam('BACK-END')}
+          className={`w-[138px] px-0 py-3 md:w-[290px] md:py-3 rounded-[14px] text-body-1-semibold cursor-pointer transition-all duration-150 ${form.selectedTeam === 'BACK-END' ? 'bg-blue-600 text-white' : 'bg-gray-200 text-gray-700'}`}
+          onClick={() => setForm({ ...form, selectedTeam: 'BACK-END' })}
         >
           BACK-END
         </button>
       </div>
       {/* 팀명 */}
-      <label className="text-body-2-semibold mb-1 flex">팀명</label>
-      <div className="flex flex-col gap-2 mb-6">
-        <select
-          className={`${isDesktop ? 'px-6 py-3' : 'px-4 py-3'} border border-gray-200 bg-gray-300 rounded-[14px] focus:outline-none focus:ring-2 focus:ring-blue-400 text-gray-700 text-body-1-semibold`}
-          value={selectedTeamName}
-          onChange={e => setSelectedTeamName(e.target.value)}
-        >
-          <option value="">팀명을 선택하세요</option>
-          {teamOptions.map((team) => (
-            <option key={team} value={team}>{team}</option>
-          ))}
-        </select>
+      <Label>팀명</Label>
+      <div className="flex flex-col w-full mb-6">
+        <Select
+          options={teamOptions}
+          placeholder="팀명을 선택하세요"
+          value={form.selectedTeamName}
+          onChange={val => setForm({ ...form, selectedTeamName: val })}
+        />
       </div>
       {/* 이름 */}
-      <label className="text-body-2-semibold mb-1 flex">이름</label>
-      <div className="flex flex-col gap-2 mb-6">
-        <select
-          className={`${isDesktop ? 'px-6 py-3' : 'px-4 py-3'} border border-gray-200 bg-gray-300 rounded-[14px] focus:outline-none focus:ring-2 focus:ring-blue-400 text-gray-700 text-body-1-semibold`}
-          value={selectedName}
-          onChange={e => setSelectedName(e.target.value)}
-        >
-          <option value="">이름을 선택하세요</option>
-          {nameOptions.map(name => (
-            <option key={name} value={name}>{name}</option>
-          ))}
-        </select>
+      <Label>이름</Label>
+      <div className="flex flex-col w-full mb-6">
+        <Select
+          options={nameOptions}
+          placeholder="이름을 선택하세요"
+          value={form.selectedName}
+          onChange={val => setForm({ ...form, selectedName: val })}
+        />
       </div>
       {/* 아이디 */}
-      <label className="text-body-2-semibold mb-1 flex">아이디</label>
+      <Label>아이디</Label>
       <div className="flex w-full gap-2 mb-6">
-        <input
+        <Input
           type="text"
           placeholder="아이디를 입력하세요"
-          className={`${isDesktop ? 'px-6 py-3' : 'px-4 py-3'} w-2/3 border border-gray-200 bg-gray-300 rounded-[14px] focus:outline-none focus:ring-2 focus:ring-blue-400 placeholder:text-black/50 text-body-1-semibold placeholder:text-body-1-semibold`}
-          value={userId}
-          onChange={e => setUserId(e.target.value)}
+          className="px-4 py-3 md:px-6 w-2/3"
+          value={form.userId}
+          onChange={e => setForm({ ...form, userId: e.target.value })}
         />
-        <button
-          type="button"
-          className={`w-1/3 ${isDesktop ? 'px-6 py-3' : 'px-4 py-3'} h-full flex items-center justify-center text-body-1-semibold rounded-[14px] transition-colors duration-150
-            ${userId.length >= 6 ? "bg-blue-600 text-white cursor-pointer hover:bg-blue-500" : "bg-gray-500 text-gray-700 opacity-100 cursor-not-allowed"}`}
-          disabled={userId.length < 6}
+        <CheckButton
+          disabled={form.userId.length < 6}
+          onClick={handleUserIdCheck}
+          className="px-4 py-3 md:px-6"
         >
           중복확인
-        </button>
+        </CheckButton>
       </div>
       {/* 이메일 */}
-      <label className="text-body-2-semibold mb-1 flex">이메일</label>
+      <Label>이메일</Label>
       <div className="flex w-full gap-2 mb-6">
-        <input
+        <Input
           type="email"
           placeholder="이메일을 입력하세요"
-          className={`${isDesktop ? 'px-6 py-3' : 'px-4 py-3'} w-2/3 border border-gray-200 bg-gray-300 rounded-[14px] focus:outline-none focus:ring-2 focus:ring-blue-400 placeholder:text-black/50 text-body-1-semibold placeholder:text-body-1-semibold`}
-          value={userEmail}
-          onChange={e => setUserEmail(e.target.value)}
+          className="px-4 py-3 md:px-6 w-2/3"
+          value={form.userEmail}
+          onChange={e => setForm({ ...form, userEmail: e.target.value })}
         />
-        <button
-          type="button"
-          className={`w-1/3 ${isDesktop ? 'px-6 py-3' : 'px-4 py-3'} h-full flex items-center justify-center text-body-1-semibold rounded-[14px] transition-colors duration-150
-            ${isValidEmail(userEmail) ? "bg-blue-600 text-white cursor-pointer hover:bg-blue-500" : "bg-gray-500 text-gray-700 opacity-100 cursor-not-allowed"}`}
-          disabled={!isValidEmail(userEmail)}
+        <CheckButton
+          disabled={!isValidEmail(form.userEmail)}
+          onClick={handleEmailCheck}
+          className="px-4 py-3 md:px-6"
         >
           중복확인
-        </button>
+        </CheckButton>
       </div>
       {/* 비밀번호 */}
-      <label className="text-body-2-semibold mb-1 flex">비밀번호</label>
-      <input
+      <Label>비밀번호</Label>
+      <Input
         type="password"
         placeholder="비밀번호를 입력하세요"
-        className={`${isDesktop ? 'px-6 py-3' : 'px-4 py-3'} border border-gray-200 bg-gray-300 rounded-[14px] focus:outline-none focus:ring-2 focus:ring-blue-400 placeholder:text-black/50 text-body-1-semibold placeholder:text-body-1-semibold mb-6`}
-        value={password}
-        onChange={e => setPassword(e.target.value)}
+        className="px-4 py-3 md:px-6 mb-6"
+        value={form.password}
+        onChange={e => setForm({ ...form, password: e.target.value })}
       />
       {/* 비밀번호 재확인 */}
-      <label className="text-body-2-semibold mb-1 flex">비밀번호 재확인</label>
-      <input
+      <Label>비밀번호 재확인</Label>
+      <Input
         type="password"
         placeholder="비밀번호를 다시 입력하세요"
-        className={`${isDesktop ? 'px-6 py-3' : 'px-4 py-3'} border border-gray-200 bg-gray-300 rounded-[14px] focus:outline-none focus:ring-2 focus:ring-blue-400 placeholder:text-black/50 text-body-1-semibold placeholder:text-body-1-semibold`}
-        value={passwordCheck}
-        onChange={e => setPasswordCheck(e.target.value)}
+        className="px-4 py-3 md:px-6"
+        value={form.passwordCheck}
+        onChange={e => setForm({ ...form, passwordCheck: e.target.value })}
       />
       {/* 회원가입 버튼 */}
       <button
         type="submit"
         disabled={
-          !selectedTeam ||
-          !selectedTeamName ||
-          !selectedName ||
-          !userId ||
-          !userEmail ||
-          !isValidEmail(userEmail) ||
-          !password ||
-          !passwordCheck
+          !form.selectedTeam ||
+          !form.selectedTeamName ||
+          !form.selectedName ||
+          !form.userId ||
+          !form.userEmail ||
+          !isValidEmail(form.userEmail) ||
+          !form.password ||
+          !form.passwordCheck
         }
-        className={`text-body-1-medium py-3 rounded-[14px] font-bold mt-14 transition cursor-pointer
-          ${selectedTeam && selectedTeamName && selectedName && userId && userEmail && isValidEmail(userEmail) && password && passwordCheck
-            ? "bg-blue-600 text-white hover:bg-blue-500"
+        className={`text-body-1-medium py-3 rounded-[14px] font-bold mt-14 transition
+          ${form.selectedTeam && form.selectedTeamName && form.selectedName && form.userId && form.userEmail && isValidEmail(form.userEmail) && form.password && form.passwordCheck
+            ? "bg-blue-600 text-white hover:bg-blue-500 cursor-pointer"
             : "bg-gray-500 text-white opacity-100 cursor-not-allowed"}
         `}
       >
