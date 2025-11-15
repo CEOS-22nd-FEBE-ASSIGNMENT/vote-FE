@@ -1,7 +1,7 @@
-
 import { useState } from "react";
+import MessageBlock from "./MessageBlock";
 import { signUpSchema } from '@/schemas/signUpSchema';
-import { z } from 'zod';
+import { ZodError } from 'zod';
 import { useCheckIdDuplicateQuery, useCheckEmailDuplicateQuery } from '@/hooks/auth/useSignUp';
 import { teamOptions } from "../../constants/teamOptions";
 import { frontendNames, backendNames } from "../../constants/nameOptions";
@@ -25,9 +25,7 @@ const SignUpForm = () => {
     passwordCheck: "",
   });
 
-  // zod 유효성 검사 결과 상태
   const [validationErrors, setValidationErrors] = useState<{ [key: string]: string }>({});
-
   const [idCheckRequested, setIdCheckRequested] = useState(false);
   const [emailCheckRequested, setEmailCheckRequested] = useState(false);
 
@@ -55,10 +53,6 @@ const SignUpForm = () => {
     }
   };
 
-  const isValidEmail = (email: string) => {
-    return /^[\w-.]+@[\w-]+\.[a-zA-Z]{2,}$/.test(email);
-  };
-
   // 입력값 변경 시마다 zod로 실시간 유효성 검사
   const validateForm = (nextForm: typeof form) => {
     try {
@@ -69,17 +63,17 @@ const SignUpForm = () => {
       });
       setValidationErrors({});
     } catch (err) {
-      if (err instanceof z.ZodError) {
-        const errors: { [key: string]: string } = {};
-        err.issues.forEach((e: z.ZodIssue) => {
-          if (e.path && e.path.length > 0) {
-            errors[String(e.path[0])] = e.message;
-          }
-        });
-        setValidationErrors(errors);
+    if (err instanceof ZodError) {
+          const errors: { [key: string]: string } = {};
+    err.issues.forEach((e) => {
+            if (e.path && e.path.length > 0) {
+              errors[String(e.path[0])] = e.message;
+            }
+          });
+          setValidationErrors(errors);
+        }
       }
-    }
-  };
+    };
 
   // 각 입력값 변경 핸들러에서 유효성 검사 호출
   const handleChange = (field: keyof typeof form, value: string) => {
@@ -104,8 +98,8 @@ const SignUpForm = () => {
       className="flex flex-col w-full mx-auto my-8 rounded-2xl bg-white max-w-[360px] px-8 py-6 md:max-w-2xl md:px-8 md:py-6"
       style={{ boxShadow: "0 10px 15px -3px rgba(0, 0, 0, 0.10), 0 4px 6px -4px rgba(0, 0, 0, 0.10)" }}
     >
-  <h1 className="text-head-2-bold mb-2 md:mb-4 text-center">회원가입</h1>
-  <p className="text-center text-gray-700 mb-8 md:mb-6 text-body-2-semibold">투표 시스템에 가입하고 투표에 참여하세요</p>
+    <h1 className="text-head-2-bold mb-2 md:mb-4 text-center">회원가입</h1>
+    <p className="text-center text-gray-700 mb-8 md:mb-6 text-body-2-semibold">투표 시스템에 가입하고 투표에 참여하세요</p>
       {/* 팀 선택 버튼 */}
       <Label className="mb-2.5">팀 선택</Label>
       <div className="flex h-12 w-full mb-6 justify-between">
@@ -123,8 +117,8 @@ const SignUpForm = () => {
         >
           BACK-END
         </button>
-      </div>
       {/* 팀명 */}
+      </div>
       <Label>팀명</Label>
       <div className="flex flex-col w-full mb-6">
         <Select
@@ -167,51 +161,54 @@ const SignUpForm = () => {
           중복확인
         </CheckButton>
       </div>
-    <div className={`flex items-center ${((idCheckRequested && !isIdChecking && idCheckData) || showIdCheckError) ? 'mb-1' : 'mb-6'}`}>
-      {showIdCheckError ? (
-        <p className="text-red-500 text-body-2-semibold">아이디 중복 확인이 필요합니다.</p>
-      ) : (
-        idCheckRequested && !isIdChecking && idCheckData && (
-          <p className={`text-body-2-semibold ${idCheckData.result.available ? 'text-blue-600' : 'text-red-500'}`}>
-            {idCheckData.result.available ? '사용 가능한 아이디입니다.' : '이미 사용 중인 아이디입니다.'}
-          </p>
-        )
-      )}
-    </div>
+      <MessageBlock
+        error={undefined}
+        checkError={showIdCheckError}
+        checkRequested={idCheckRequested}
+        checkData={idCheckData}
+        isChecking={isIdChecking}
+        availableMsg="사용 가능한 아이디입니다."
+        unavailableMsg="이미 사용 중인 아이디입니다."
+        needCheckMsg="아이디 중복 확인이 필요합니다."
+        minHeight="20px"
+        className={((idCheckRequested && !isIdChecking && idCheckData) || showIdCheckError) ? 'mb-2' : 'mb-2'}
+      />
       {/* 이메일 */}
       <Label>이메일</Label>
-      <div className="flex w-full gap-2 flex-nowrap">
-        <Input
-          type="email"
-          placeholder="이메일을 입력하세요"
-          className="px-4 py-3 md:px-6 flex-1 min-w-0"
-          value={form.userEmail}
-          onChange={e => {
-            const value = e.target.value;
-            if (/^[a-zA-Z0-9@._-]*$/.test(value)) {
-              handleChange('userEmail', value);
-            }
-          }}
+      <div className="flex flex-col w-full">
+        <div className="flex w-full gap-2 flex-nowrap">
+          <Input
+            type="email"
+            placeholder="이메일을 입력하세요"
+            className="px-4 py-3 md:px-6 flex-1 min-w-0"
+            value={form.userEmail}
+            onChange={e => {
+              handleChange('userEmail', e.target.value);
+            }}
+          />
+          <CheckButton
+            disabled={!!validationErrors.userEmail || !form.userEmail}
+            onClick={handleEmailCheck}
+            className="px-4 py-3"
+          >
+            중복확인
+          </CheckButton>
+        </div>
+        <MessageBlock
+          error={validationErrors.userEmail && form.userEmail ? validationErrors.userEmail : undefined}
+          checkError={showEmailCheckError}
+          checkRequested={emailCheckRequested}
+          checkData={emailCheckData}
+          isChecking={isEmailChecking}
+          availableMsg="사용 가능한 이메일입니다."
+          unavailableMsg="이미 사용 중인 이메일입니다."
+          needCheckMsg="이메일 중복 확인이 필요합니다."
+          minHeight="20px"
+          className="mb-2"
+          showWhenInput={true}
+          inputValue={form.userEmail}
         />
-        <CheckButton
-          disabled={!isValidEmail(form.userEmail)}
-          onClick={handleEmailCheck}
-          className="px-4 py-3"
-        >
-          중복확인
-        </CheckButton>
       </div>
-    <div className={`flex items-center ${((emailCheckRequested && !isEmailChecking && emailCheckData) || showEmailCheckError) ? 'mb-1' : 'mb-6'}`}>
-      {showEmailCheckError ? (
-        <p className="text-red-500 text-body-2-semibold">이메일 중복 확인이 필요합니다.</p>
-      ) : (
-        emailCheckRequested && !isEmailChecking && emailCheckData && (
-          <p className={`text-body-2-semibold ${emailCheckData.result.available ? 'text-blue-600' : 'text-red-500'}`}>
-            {emailCheckData.result.available ? '사용 가능한 이메일입니다.' : '이미 사용 중인 이메일입니다.'}
-          </p>
-        )
-      )}
-    </div>
       {/* 비밀번호 */}
       <Label>비밀번호</Label>
       <Input
@@ -233,8 +230,8 @@ const SignUpForm = () => {
         value={form.passwordCheck}
         onChange={e => handleChange('passwordCheck', e.target.value)}
       />
-      <div style={{ minHeight: '24px' }} className={validationErrors.passwordCheck ? 'mb-0' : 'mb-0'}>
-        {validationErrors.passwordCheck && (
+      <div style={{ minHeight: '24px' }} className={validationErrors.passwordCheck ? 'mb-1' : 'mb-1'}>
+        {validationErrors.passwordCheck && form.passwordCheck && (
           <p className="text-red-500 text-body-2-semibold">{validationErrors.passwordCheck}</p>
         )}
       </div>
@@ -247,7 +244,7 @@ const SignUpForm = () => {
           !form.selectedName ||
           !form.userId ||
           !form.userEmail ||
-          !isValidEmail(form.userEmail) ||
+          !!validationErrors.userEmail ||
           !form.password ||
           !form.passwordCheck ||
           Object.keys(validationErrors).length > 0
@@ -258,7 +255,7 @@ const SignUpForm = () => {
           // 실제 회원가입 로직은 여기에 추가
         }}
         className={`text-body-1-medium py-3 rounded-[14px] font-bold mt-14 transition
-          ${form.selectedTeam && form.selectedTeamName && form.selectedName && form.userId && form.userEmail && isValidEmail(form.userEmail) && form.password && form.passwordCheck && Object.keys(validationErrors).length === 0
+          ${form.selectedTeam && form.selectedTeamName && form.selectedName && form.userId && form.userEmail && !validationErrors.userEmail && form.password && form.passwordCheck && Object.keys(validationErrors).length === 0
             ? "bg-blue-600 text-white hover:bg-blue-500 cursor-pointer"
             : "bg-gray-500 text-white opacity-100 cursor-not-allowed"}
         `}
