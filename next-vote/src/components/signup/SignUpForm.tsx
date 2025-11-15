@@ -1,5 +1,7 @@
 
 import { useState } from "react";
+import { signUpSchema } from '@/schemas/signUpSchema';
+import { z } from 'zod';
 import { useCheckIdDuplicateQuery, useCheckEmailDuplicateQuery } from '@/hooks/auth/useSignUp';
 import { teamOptions } from "../../constants/teamOptions";
 import { frontendNames, backendNames } from "../../constants/nameOptions";
@@ -22,6 +24,9 @@ const SignUpForm = () => {
     password: "",
     passwordCheck: "",
   });
+
+  // zod 유효성 검사 결과 상태
+  const [validationErrors, setValidationErrors] = useState<{ [key: string]: string }>({});
 
   const [idCheckRequested, setIdCheckRequested] = useState(false);
   const [emailCheckRequested, setEmailCheckRequested] = useState(false);
@@ -52,6 +57,46 @@ const SignUpForm = () => {
 
   const isValidEmail = (email: string) => {
     return /^[\w-.]+@[\w-]+\.[a-zA-Z]{2,}$/.test(email);
+  };
+
+  // 입력값 변경 시마다 zod로 실시간 유효성 검사
+  const validateForm = (nextForm: typeof form) => {
+    try {
+      signUpSchema.parse({
+        userEmail: nextForm.userEmail,
+        password: nextForm.password,
+        passwordCheck: nextForm.passwordCheck,
+      });
+      setValidationErrors({});
+    } catch (err) {
+      if (err instanceof z.ZodError) {
+        const errors: { [key: string]: string } = {};
+        err.issues.forEach((e: z.ZodIssue) => {
+          if (e.path && e.path.length > 0) {
+            errors[String(e.path[0])] = e.message;
+          }
+        });
+        setValidationErrors(errors);
+      }
+    }
+  };
+
+  // 각 입력값 변경 핸들러에서 유효성 검사 호출
+  const handleChange = (field: keyof typeof form, value: string) => {
+    const nextForm = { ...form, [field]: value };
+    setForm(nextForm);
+    validateForm(nextForm);
+    // 아이디/이메일 입력 시 중복확인 상태 초기화
+    if (field === 'userId') {
+      setIdCheckRequested(false);
+      setIsIdChecked(false);
+      setShowIdCheckError(false);
+    }
+    if (field === 'userEmail') {
+      setEmailCheckRequested(false);
+      setIsEmailChecked(false);
+      setShowEmailCheckError(false);
+    }
   };
 
   return (
@@ -110,10 +155,7 @@ const SignUpForm = () => {
           onChange={e => {
             const value = e.target.value;
             if (/^[a-zA-Z0-9]*$/.test(value)) {
-              setForm({ ...form, userId: value });
-              setIdCheckRequested(false);
-              setIsIdChecked(false);
-              setShowIdCheckError(false);
+              handleChange('userId', value);
             }
           }}
         />
@@ -147,10 +189,7 @@ const SignUpForm = () => {
           onChange={e => {
             const value = e.target.value;
             if (/^[a-zA-Z0-9@._-]*$/.test(value)) {
-              setForm({ ...form, userEmail: value });
-              setEmailCheckRequested(false);
-              setIsEmailChecked(false);
-              setShowEmailCheckError(false);
+              handleChange('userEmail', value);
             }
           }}
         />
@@ -180,8 +219,11 @@ const SignUpForm = () => {
         placeholder="비밀번호를 입력하세요"
         className="px-4 py-3 md:px-6 mb-6"
         value={form.password}
-        onChange={e => setForm({ ...form, password: e.target.value })}
+        onChange={e => handleChange('password', e.target.value)}
       />
+      {validationErrors.password && (
+        <p className="text-red-500 text-body-2-semibold mb-5">{validationErrors.password}</p>
+      )}
       {/* 비밀번호 재확인 */}
       <Label>비밀번호 재확인</Label>
       <Input
@@ -189,8 +231,13 @@ const SignUpForm = () => {
         placeholder="비밀번호를 다시 입력하세요"
         className="px-4 py-3 md:px-6"
         value={form.passwordCheck}
-        onChange={e => setForm({ ...form, passwordCheck: e.target.value })}
+        onChange={e => handleChange('passwordCheck', e.target.value)}
       />
+      <div style={{ minHeight: '24px' }} className={validationErrors.passwordCheck ? 'mb-0' : 'mb-0'}>
+        {validationErrors.passwordCheck && (
+          <p className="text-red-500 text-body-2-semibold">{validationErrors.passwordCheck}</p>
+        )}
+      </div>
       {/* 회원가입 버튼 */}
       <button
         type="button"
@@ -202,7 +249,8 @@ const SignUpForm = () => {
           !form.userEmail ||
           !isValidEmail(form.userEmail) ||
           !form.password ||
-          !form.passwordCheck
+          !form.passwordCheck ||
+          Object.keys(validationErrors).length > 0
         }
         onClick={() => {
           if (!isIdChecked) setShowIdCheckError(true);
@@ -210,7 +258,7 @@ const SignUpForm = () => {
           // 실제 회원가입 로직은 여기에 추가
         }}
         className={`text-body-1-medium py-3 rounded-[14px] font-bold mt-14 transition
-          ${form.selectedTeam && form.selectedTeamName && form.selectedName && form.userId && form.userEmail && isValidEmail(form.userEmail) && form.password && form.passwordCheck
+          ${form.selectedTeam && form.selectedTeamName && form.selectedName && form.userId && form.userEmail && isValidEmail(form.userEmail) && form.password && form.passwordCheck && Object.keys(validationErrors).length === 0
             ? "bg-blue-600 text-white hover:bg-blue-500 cursor-pointer"
             : "bg-gray-500 text-white opacity-100 cursor-not-allowed"}
         `}
