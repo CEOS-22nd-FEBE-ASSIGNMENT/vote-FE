@@ -9,17 +9,21 @@ export const useSignupMutation = () =>
   });
 
 // 아이디 중복 검사
-export const useCheckIdDuplicateQuery = (id: string) =>
+
+export const useCheckIdDuplicateQuery = (id: string, options?: object) =>
   useQuery({
     queryKey: ['checkIdDuplicate', id],
     queryFn: () => checkIdDuplicate(id),
-    enabled: !!id,
+    enabled: false,
+    ...options,
   });
 
 // 이메일 중복 검사
-export const useCheckEmailDuplicateQuery = (email: string) =>
+
+export const useCheckEmailDuplicateQuery = (email: string, options?: object) =>
   useQuery({
     queryKey: ['checkEmailDuplicate', email],
     queryFn: () => checkEmailDuplicate(email),
-    enabled: !!email,
+    enabled: false,
+    ...options,
   });

@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useCheckIdDuplicateQuery, useCheckEmailDuplicateQuery } from '@/hooks/auth/useSignUp';
 import { teamOptions } from "../../constants/teamOptions";
 import { frontendNames, backendNames } from "../../constants/nameOptions";
 import Label from "./fields/Label";
@@ -7,14 +8,6 @@ import Select from "./fields/Select";
 import CheckButton from "./fields/CheckButton";
 
 const SignUpForm = () => {
-  // 중복확인 버튼 핸들러
-  const handleUserIdCheck = () => {
-    // 아이디 중복확인 API 호출
-  };
-  const handleEmailCheck = () => {
-    // 이메일 중복확인 API 호출
-  };
-
   const [form, setForm] = useState({
     selectedTeam: null as 'FRONT-END' | 'BACK-END' | null,
     selectedTeamName: "",
@@ -24,6 +17,21 @@ const SignUpForm = () => {
     password: "",
     passwordCheck: "",
   });
+
+  const [idCheckRequested, setIdCheckRequested] = useState(false);
+  const [emailCheckRequested, setEmailCheckRequested] = useState(false);
+
+  const { data: idCheckData, refetch: refetchIdCheck, isFetching: isIdChecking } = useCheckIdDuplicateQuery(form.userId, { enabled: false });
+  const { data: emailCheckData, refetch: refetchEmailCheck, isFetching: isEmailChecking } = useCheckEmailDuplicateQuery(form.userEmail, { enabled: false });
+
+  const handleUserIdCheck = () => {
+    setIdCheckRequested(true);
+    refetchIdCheck();
+  };
+  const handleEmailCheck = () => {
+    setEmailCheckRequested(true);
+    refetchEmailCheck();
+  };
 
   const isValidEmail = (email: string) => {
     return /^[\w-.]+@[\w-]+\.[a-zA-Z]{2,}$/.test(email);
@@ -76,13 +84,19 @@ const SignUpForm = () => {
       </div>
       {/* 아이디 */}
       <Label>아이디</Label>
-      <div className="flex w-full gap-2 mb-6 flex-nowrap">
+      <div className="flex w-full gap-2 flex-nowrap">
         <Input
           type="text"
           placeholder="아이디를 입력하세요"
           className="px-4 py-3 md:px-6 flex-1 min-w-0"
           value={form.userId}
-          onChange={e => setForm({ ...form, userId: e.target.value })}
+          onChange={e => {
+            const value = e.target.value;
+            if (/^[a-zA-Z0-9]*$/.test(value)) {
+              setForm({ ...form, userId: value });
+              setIdCheckRequested(false);
+            }
+          }}
         />
         <CheckButton
           disabled={form.userId.length < 6}
@@ -92,15 +106,28 @@ const SignUpForm = () => {
           중복확인
         </CheckButton>
       </div>
+      <div className="mb-6 flex items-center">
+        {idCheckRequested && !isIdChecking && idCheckData && (
+          <p className={`text-body-2-semibold ${idCheckData.result.available ? 'text-blue-600' : 'text-red'}`}>
+            {idCheckData.result.available ? '사용 가능한 아이디입니다.' : '이미 사용 중인 아이디입니다.'}
+          </p>
+        )}
+      </div>
       {/* 이메일 */}
       <Label>이메일</Label>
-      <div className="flex w-full gap-2 mb-6 flex-nowrap">
+      <div className="flex w-full gap-2 flex-nowrap">
         <Input
           type="email"
           placeholder="이메일을 입력하세요"
           className="px-4 py-3 md:px-6 flex-1 min-w-0"
           value={form.userEmail}
-          onChange={e => setForm({ ...form, userEmail: e.target.value })}
+          onChange={e => {
+            const value = e.target.value;
+            if (/^[a-zA-Z0-9@._-]*$/.test(value)) {
+              setForm({ ...form, userEmail: value });
+              setEmailCheckRequested(false);
+            }
+          }}
         />
         <CheckButton
           disabled={!isValidEmail(form.userEmail)}
@@ -109,6 +136,13 @@ const SignUpForm = () => {
         >
           중복확인
         </CheckButton>
+      </div>
+      <div className="mb-6 flex items-center">
+        {emailCheckRequested && !isEmailChecking && emailCheckData && (
+          <p className={`text-body-2-semibold ${emailCheckData.result.available ? 'text-blue-600' : 'text-red'}`}>
+            {emailCheckData.result.available ? '사용 가능한 이메일입니다.' : '이미 사용 중인 이메일입니다.'}
+          </p>
+        )}
       </div>
       {/* 비밀번호 */}
       <Label>비밀번호</Label>
