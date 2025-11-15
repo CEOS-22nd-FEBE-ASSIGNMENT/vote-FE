@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { teamOptions } from "../../constants/teamOptions";
-import { nameOptions } from "../../constants/nameOptions";
+import { frontendNames, backendNames } from "../../constants/nameOptions";
 import Label from "./fields/Label";
 import Input from "./fields/Input";
 import Select from "./fields/Select";
@@ -68,7 +68,7 @@ const SignUpForm = () => {
       <Label>이름</Label>
       <div className="flex flex-col w-full mb-6">
         <Select
-          options={nameOptions}
+          options={form.selectedTeam === 'FRONT-END' ? frontendNames : form.selectedTeam === 'BACK-END' ? backendNames : []}
           placeholder="이름을 선택하세요"
           value={form.selectedName}
           onChange={val => setForm({ ...form, selectedName: val })}

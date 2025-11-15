@@ -1,4 +1,4 @@
-export const nameOptions = [
+export const frontendNames = [
   "정윤지",
   "손주완",
   "이채연",
@@ -9,4 +9,17 @@ export const nameOptions = [
   "신용섭",
   "정성훈",
   "최무헌",
+];
+
+export const backendNames = [
+  "변호영",
+  "이윤지",
+  "이연호",
+  "이준영",
+  "배승식",
+  "신혁",
+  "이지원",
+  "변하영",
+  "서가영",
+  "이수아",
 ];
