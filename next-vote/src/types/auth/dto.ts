@@ -16,16 +16,6 @@ export interface LoginResponse {
   };
 }
 
-export interface ValidateResponse {
-  isSuccess: boolean;
-  code: string;
-  message: string;
-  result: {
-    message: string;
-    isValid: 'VALID' | 'INVALID';
-  };
-}
-
 export interface RefreshResponse {
   isSuccess: boolean;
   code: string;
