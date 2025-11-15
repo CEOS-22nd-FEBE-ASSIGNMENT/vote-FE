@@ -34,3 +34,63 @@ export interface RefreshResponse {
     accessToken: string;
   };
 }
+
+export interface SignupRequest {
+  loginId: string;
+  password: string;
+  email: string;
+  part: 'FRONTEND' | 'BACKEND';
+  name: string;
+  team: 'MODELLY' | 'DIGGINDIE' | 'CATCHUP' | 'MENUAL' | 'STORIX';
+}
+
+export interface SignupResponse {
+  isSuccess: boolean;
+  code: string;
+  message: string;
+  result: {
+    loginId: string;
+    name: string;
+  };
+}
+
+export interface CheckAvailableResponse {
+  isSuccess: boolean;
+  code: string;
+  message: string;
+  result: {
+    field: string;
+    value: string;
+    available: boolean;
+  };
+}
+
+export interface SignupRequest {
+  loginId: string;
+  password: string;
+  email: string;
+  part: 'FRONTEND' | 'BACKEND';
+  name: string;
+  team: 'MODELLY' | 'DIGGINDIE' | 'CATCHUP' | 'MENUAL' | 'STORIX';
+}
+
+export interface SignupResponse {
+  isSuccess: boolean;
+  code: string;
+  message: string;
+  result: {
+    loginId: string;
+    name: string;
+  };
+}
+
+export interface CheckAvailableResponse {
+  isSuccess: boolean;
+  code: string;
+  message: string;
+  result: {
+    field: string;
+    value: string;
+    available: boolean;
+  };
+}
