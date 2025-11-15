@@ -1,5 +1,7 @@
 import { useState } from "react";
-import MessageBlock from "./MessageBlock";
+import { signup } from '@/lib/apis/signup';
+import type { SignupRequest } from '@/types/auth/dto';
+import MessageBlock from "./fields/MessageBlock";
 import { signUpSchema } from '@/schemas/signUpSchema';
 import { ZodError } from 'zod';
 import { useCheckIdDuplicateQuery, useCheckEmailDuplicateQuery } from '@/hooks/auth/useSignUp';
@@ -12,7 +14,6 @@ import CheckButton from "./fields/CheckButton";
 
 const SignUpForm = () => {
   const [showIdCheckError, setShowIdCheckError] = useState(false);
-  const [showEmailCheckError, setShowEmailCheckError] = useState(false);
   const [isIdChecked, setIsIdChecked] = useState(false);
   const [isEmailChecked, setIsEmailChecked] = useState(false);
   const [form, setForm] = useState({
@@ -43,14 +44,9 @@ const SignUpForm = () => {
     }
   };
   const handleEmailCheck = async () => {
-    setShowEmailCheckError(false);
     setEmailCheckRequested(true);
     const result = await refetchEmailCheck();
-    if (result.data && result.data.result.available) {
-      setIsEmailChecked(true);
-    } else {
-      setIsEmailChecked(false);
-    }
+    setIsEmailChecked(!!(result.data && result.data.result.available));
   };
 
   // 입력값 변경 시마다 zod로 실시간 유효성 검사
@@ -89,7 +85,6 @@ const SignUpForm = () => {
     if (field === 'userEmail') {
       setEmailCheckRequested(false);
       setIsEmailChecked(false);
-      setShowEmailCheckError(false);
     }
   };
 
@@ -194,20 +189,22 @@ const SignUpForm = () => {
             중복확인
           </CheckButton>
         </div>
-        <MessageBlock
-          error={validationErrors.userEmail && form.userEmail ? validationErrors.userEmail : undefined}
-          checkError={showEmailCheckError}
-          checkRequested={emailCheckRequested}
-          checkData={emailCheckData}
-          isChecking={isEmailChecking}
-          availableMsg="사용 가능한 이메일입니다."
-          unavailableMsg="이미 사용 중인 이메일입니다."
-          needCheckMsg="이메일 중복 확인이 필요합니다."
-          minHeight="20px"
-          className="mb-2"
-          showWhenInput={true}
-          inputValue={form.userEmail}
-        />
+          <MessageBlock
+            error={validationErrors.userEmail && form.userEmail ? validationErrors.userEmail : undefined}
+            // 이메일 중복확인 필요 메시지는 회원가입 버튼 클릭 후 중복확인 안했을 때만 표시
+            checkError={emailCheckRequested && !isEmailChecked && (!emailCheckData || (emailCheckData && emailCheckData.result.available)) && !isEmailChecking}
+            checkRequested={emailCheckRequested}
+            // 이메일 중복 결과에 따라 메시지 표시
+            checkData={emailCheckData}
+            isChecking={isEmailChecking}
+            availableMsg="사용 가능한 이메일입니다."
+            unavailableMsg="이미 사용 중인 이메일입니다."
+            needCheckMsg="이메일 중복 확인이 필요합니다."
+            minHeight="20px"
+            className="mb-2"
+            showWhenInput={true}
+            inputValue={form.userEmail}
+          />
       </div>
       {/* 비밀번호 */}
       <Label>비밀번호</Label>
@@ -249,10 +246,34 @@ const SignUpForm = () => {
           !form.passwordCheck ||
           Object.keys(validationErrors).length > 0
         }
-        onClick={() => {
-          if (!isIdChecked) setShowIdCheckError(true);
-          if (!isEmailChecked) setShowEmailCheckError(true);
-          // 실제 회원가입 로직은 여기에 추가
+        onClick={async () => {
+          if (!isIdChecked) {
+            setShowIdCheckError(true);
+            return;
+          }
+          if (!isEmailChecked) {
+            setEmailCheckRequested(true); // 회원가입 버튼 클릭 시 중복확인 필요 메시지 표시
+            return;
+          }
+          const payload: SignupRequest = {
+            loginId: form.userId,
+            password: form.password,
+            email: form.userEmail,
+            part: form.selectedTeam === 'FRONT-END' ? 'FRONTEND' : 'BACKEND',
+            name: form.selectedName,
+            team: form.selectedTeamName as SignupRequest['team'],
+          };
+          try {
+            const res = await signup(payload);
+            if (res.isSuccess) {
+              alert('회원가입이 완료되었습니다!');
+              window.location.href = '/login';
+            } else {
+              alert(res.message || '회원가입에 실패했습니다.');
+            }
+          } catch (err) {
+            alert('회원가입 중 오류가 발생했습니다.');
+          }
         }}
         className={`text-body-1-medium py-3 rounded-[14px] font-bold mt-14 transition
           ${form.selectedTeam && form.selectedTeamName && form.selectedName && form.userId && form.userEmail && !validationErrors.userEmail && form.password && form.passwordCheck && Object.keys(validationErrors).length === 0

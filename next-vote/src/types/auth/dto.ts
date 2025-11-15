@@ -11,7 +11,7 @@ export interface LoginResponse {
     userId: number;
     name: string;
     part: 'FRONTEND' | 'BACKEND';
-    team: 'MODELLY' | 'DIGGINDIE' | 'CATCHUP' | 'MENUAL' | 'STORIX';
+    team: 'MODELLY' | 'DIGGINDIE' | 'CATCHUP' | 'GROOMEASY' | 'STORIX';
     accessToken: string;
   };
 }
