@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { useCheckIdDuplicateQuery, useCheckEmailDuplicateQuery } from '@/hooks/auth/useSignUp';
 import { teamOptions } from "../../constants/teamOptions";
@@ -8,6 +9,10 @@ import Select from "./fields/Select";
 import CheckButton from "./fields/CheckButton";
 
 const SignUpForm = () => {
+  const [showIdCheckError, setShowIdCheckError] = useState(false);
+  const [showEmailCheckError, setShowEmailCheckError] = useState(false);
+  const [isIdChecked, setIsIdChecked] = useState(false);
+  const [isEmailChecked, setIsEmailChecked] = useState(false);
   const [form, setForm] = useState({
     selectedTeam: null as 'FRONT-END' | 'BACK-END' | null,
     selectedTeamName: "",
@@ -24,13 +29,25 @@ const SignUpForm = () => {
   const { data: idCheckData, refetch: refetchIdCheck, isFetching: isIdChecking } = useCheckIdDuplicateQuery(form.userId, { enabled: false });
   const { data: emailCheckData, refetch: refetchEmailCheck, isFetching: isEmailChecking } = useCheckEmailDuplicateQuery(form.userEmail, { enabled: false });
 
-  const handleUserIdCheck = () => {
+  const handleUserIdCheck = async () => {
+    setShowIdCheckError(false);
     setIdCheckRequested(true);
-    refetchIdCheck();
+    const result = await refetchIdCheck();
+    if (result.data && result.data.result.available) {
+      setIsIdChecked(true);
+    } else {
+      setIsIdChecked(false);
+    }
   };
-  const handleEmailCheck = () => {
+  const handleEmailCheck = async () => {
+    setShowEmailCheckError(false);
     setEmailCheckRequested(true);
-    refetchEmailCheck();
+    const result = await refetchEmailCheck();
+    if (result.data && result.data.result.available) {
+      setIsEmailChecked(true);
+    } else {
+      setIsEmailChecked(false);
+    }
   };
 
   const isValidEmail = (email: string) => {
@@ -95,6 +112,8 @@ const SignUpForm = () => {
             if (/^[a-zA-Z0-9]*$/.test(value)) {
               setForm({ ...form, userId: value });
               setIdCheckRequested(false);
+              setIsIdChecked(false);
+              setShowIdCheckError(false);
             }
           }}
         />
@@ -106,13 +125,17 @@ const SignUpForm = () => {
           중복확인
         </CheckButton>
       </div>
-      <div className="mb-6 flex items-center">
-        {idCheckRequested && !isIdChecking && idCheckData && (
-          <p className={`text-body-2-semibold ${idCheckData.result.available ? 'text-blue-600' : 'text-red'}`}>
+    <div className={`flex items-center ${((idCheckRequested && !isIdChecking && idCheckData) || showIdCheckError) ? 'mb-1' : 'mb-6'}`}>
+      {showIdCheckError ? (
+        <p className="text-red-500 text-body-2-semibold">아이디 중복 확인이 필요합니다.</p>
+      ) : (
+        idCheckRequested && !isIdChecking && idCheckData && (
+          <p className={`text-body-2-semibold ${idCheckData.result.available ? 'text-blue-600' : 'text-red-500'}`}>
             {idCheckData.result.available ? '사용 가능한 아이디입니다.' : '이미 사용 중인 아이디입니다.'}
           </p>
-        )}
-      </div>
+        )
+      )}
+    </div>
       {/* 이메일 */}
       <Label>이메일</Label>
       <div className="flex w-full gap-2 flex-nowrap">
@@ -126,6 +149,8 @@ const SignUpForm = () => {
             if (/^[a-zA-Z0-9@._-]*$/.test(value)) {
               setForm({ ...form, userEmail: value });
               setEmailCheckRequested(false);
+              setIsEmailChecked(false);
+              setShowEmailCheckError(false);
             }
           }}
         />
@@ -137,13 +162,17 @@ const SignUpForm = () => {
           중복확인
         </CheckButton>
       </div>
-      <div className="mb-6 flex items-center">
-        {emailCheckRequested && !isEmailChecking && emailCheckData && (
-          <p className={`text-body-2-semibold ${emailCheckData.result.available ? 'text-blue-600' : 'text-red'}`}>
+    <div className={`flex items-center ${((emailCheckRequested && !isEmailChecking && emailCheckData) || showEmailCheckError) ? 'mb-1' : 'mb-6'}`}>
+      {showEmailCheckError ? (
+        <p className="text-red-500 text-body-2-semibold">이메일 중복 확인이 필요합니다.</p>
+      ) : (
+        emailCheckRequested && !isEmailChecking && emailCheckData && (
+          <p className={`text-body-2-semibold ${emailCheckData.result.available ? 'text-blue-600' : 'text-red-500'}`}>
             {emailCheckData.result.available ? '사용 가능한 이메일입니다.' : '이미 사용 중인 이메일입니다.'}
           </p>
-        )}
-      </div>
+        )
+      )}
+    </div>
       {/* 비밀번호 */}
       <Label>비밀번호</Label>
       <Input
@@ -164,7 +193,7 @@ const SignUpForm = () => {
       />
       {/* 회원가입 버튼 */}
       <button
-        type="submit"
+        type="button"
         disabled={
           !form.selectedTeam ||
           !form.selectedTeamName ||
@@ -175,6 +204,11 @@ const SignUpForm = () => {
           !form.password ||
           !form.passwordCheck
         }
+        onClick={() => {
+          if (!isIdChecked) setShowIdCheckError(true);
+          if (!isEmailChecked) setShowEmailCheckError(true);
+          // 실제 회원가입 로직은 여기에 추가
+        }}
         className={`text-body-1-medium py-3 rounded-[14px] font-bold mt-14 transition
           ${form.selectedTeam && form.selectedTeamName && form.selectedName && form.userId && form.userEmail && isValidEmail(form.userEmail) && form.password && form.passwordCheck
             ? "bg-blue-600 text-white hover:bg-blue-500 cursor-pointer"
