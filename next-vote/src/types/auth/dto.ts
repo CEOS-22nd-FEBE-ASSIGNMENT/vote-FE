@@ -41,7 +41,7 @@ export interface SignupRequest {
   email: string;
   part: 'FRONTEND' | 'BACKEND';
   name: string;
-  team: 'MODELLY' | 'DIGGINDIE' | 'CATCHUP' | 'MENUAL' | 'STORIX';
+  team: 'MODELLY' | 'DIGGINDIE' | 'CATCHUP' | 'GROOMEASY' | 'STORIX';
 }
 
 export interface SignupResponse {
@@ -71,7 +71,7 @@ export interface SignupRequest {
   email: string;
   part: 'FRONTEND' | 'BACKEND';
   name: string;
-  team: 'MODELLY' | 'DIGGINDIE' | 'CATCHUP' | 'MENUAL' | 'STORIX';
+  team: 'MODELLY' | 'DIGGINDIE' | 'CATCHUP' | 'GROOMEASY' | 'STORIX';
 }
 
 export interface SignupResponse {
