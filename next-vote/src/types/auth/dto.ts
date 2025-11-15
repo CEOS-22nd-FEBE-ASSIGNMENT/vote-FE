@@ -11,7 +11,7 @@ export interface LoginResponse {
     userId: number;
     name: string;
     part: 'FRONTEND' | 'BACKEND';
-    team: 'MODELLY' | 'DIGGINDIE' | 'CATCHUP' | 'GROOMEASY' | 'STORIX';
+    team: 'MODELLY' | 'DIGGINDIE' | 'CATCHUP' | 'MENUAL' | 'STORIX';
     accessToken: string;
   };
 }
@@ -41,7 +41,7 @@ export interface SignupRequest {
   email: string;
   part: 'FRONTEND' | 'BACKEND';
   name: string;
-  team: 'MODELLY' | 'DIGGINDIE' | 'CATCHUP' | 'GROOMEASY' | 'STORIX';
+  team: 'MODELLY' | 'DIGGINDIE' | 'CATCHUP' | 'MENUAL' | 'STORIX';
 }
 
 export interface SignupResponse {
@@ -71,7 +71,7 @@ export interface SignupRequest {
   email: string;
   part: 'FRONTEND' | 'BACKEND';
   name: string;
-  team: 'MODELLY' | 'DIGGINDIE' | 'CATCHUP' | 'GROOMEASY' | 'STORIX';
+  team: 'MODELLY' | 'DIGGINDIE' | 'CATCHUP' | 'MENUAL' | 'STORIX';
 }
 
 export interface SignupResponse {
