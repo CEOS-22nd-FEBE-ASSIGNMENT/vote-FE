@@ -1,8 +1,8 @@
 'use client';
 
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useRouter } from 'next/navigation';
-import { login, logout, validateToken, refreshToken } from '@/lib/apis/auth';
+import { login, logout, refreshToken } from '@/lib/apis/auth';
 
 export const useAuth = () => {
   const router = useRouter();
@@ -30,13 +30,6 @@ export const useAuth = () => {
     },
   });
 
-  // 토큰 검증
-  const validateQuery = useQuery({
-    queryKey: ['validateToken'],
-    queryFn: validateToken,
-    enabled: false, // 수동 호출
-  });
-
   // 토큰 재발급
   const refreshMutation = useMutation({
     mutationFn: refreshToken,
@@ -45,11 +38,9 @@ export const useAuth = () => {
   return {
     login: loginMutation.mutate,
     logout: logoutMutation.mutate,
-    validateToken: validateQuery.refetch,
     refreshToken: refreshMutation.mutate,
     isLoginLoading: loginMutation.isPending,
     isLogoutLoading: logoutMutation.isPending,
-    isValidating: validateQuery.isFetching,
     isRefreshing: refreshMutation.isPending,
   };
 };

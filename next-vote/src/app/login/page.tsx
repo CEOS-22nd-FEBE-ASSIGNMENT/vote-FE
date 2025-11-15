@@ -4,8 +4,11 @@ import Link from 'next/link';
 import { useState, FormEvent } from 'react';
 import { useAuth } from '@/hooks/auth/useAuth';
 import { loginSchema } from '@/schemas/loginSchema';
+import { useGuestGuard } from '@/hooks/useAuthGuard';
 
 const LoginPage = () => {
+  useGuestGuard(); // 이미 로그인한 사용자는 홈으로 리다이렉트
+
   const [loginId, setLoginId] = useState('');
   const [password, setPassword] = useState('');
   const [errors, setErrors] = useState<{ loginId?: string; password?: string }>({});
